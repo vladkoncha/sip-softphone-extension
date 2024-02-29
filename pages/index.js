@@ -1,21 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { Index } from "../components/index";
-import New from "../components/new";
 import styles from "./styles.module.css";
+import { RegistrationPage } from "../components/pages/registration-page";
+import { useRouter } from "../app/router/router";
+import { HOME_PAGE, REGISTRATION_PAGE } from "../app/router/routes";
+import { HomePage } from "../components/pages/home-page";
 
 export default function Home() {
-  const [activePage, setActivePage] = useState("index");
-
-  const navigateToPage = (page) => {
-    setActivePage(page);
-  };
+  const router = useRouter();
 
   return (
     <div className={styles["page-container"]}>
-      {activePage === "index" && <Index />}
-      {activePage === "new" && <New navigateToPage={navigateToPage} />}
+      {router.currentRoute === REGISTRATION_PAGE && <RegistrationPage />}
+      {router.currentRoute === HOME_PAGE && <HomePage />}
     </div>
   );
 }

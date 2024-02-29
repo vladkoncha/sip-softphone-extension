@@ -1,0 +1,16 @@
+.input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  
+  border: 1px solid var(--secondary-color);
+  border-radius: var(--border-radius);
+
+  font-size: 1rem;
+
+  transition: all 0.15s ease;
+}
+
+.input:hover,
+.input:focus-visible {
+  border-color: var(--accent-color);
+}
