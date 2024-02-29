@@ -15,6 +15,15 @@
   font-size: 0.9rem;
 }
 
+.error {
+  height: 2rem;
+  margin-bottom: 0.5rem;
+
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--error-red);
+}
+
 .form {
   width: 100%;
 

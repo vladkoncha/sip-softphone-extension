@@ -5,7 +5,7 @@
   "version": "1.0",
   "description": "",
   "icons": {
-    "192": "/icons/icon192.png"
+    "128": "/icons/icon.png"
   },
   "permissions": [],
   "web_accessible_resources": [
@@ -14,15 +14,9 @@
       "matches": ["<all_urls>"]
     }
   ],
-  "content_scripts": [
-    {
-      "matches": ["https://*/*", "http://*/*"],
-      "js": ["inject.js"]
-    }
-  ],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "index.html",
-    "default_icon": "/icons/icon192.png"
+    "default_icon": "/icons/icon.png"
   }
 }

@@ -1,14 +1,24 @@
+import Head from "next/head";
+import { Header } from "../components/header";
 import { RouterProvider } from "../app/router/router";
-import Header from "../components/header";
+import { UserAgentProvider } from "../app/store/user-agent-provider";
+
 import "../styles/globals.css";
 
 export default function App({ Component, pageProps }) {
   return (
-    <div className="main-container">
-      <Header />
-      <RouterProvider>
-        <Component {...pageProps} />
-      </RouterProvider>
-    </div>
+    <>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </Head>
+      <div className="main-container">
+        <Header />
+        <RouterProvider>
+          <UserAgentProvider>
+            <Component {...pageProps} />
+          </UserAgentProvider>
+        </RouterProvider>
+      </div>
+    </>
   );
 }

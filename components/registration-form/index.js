@@ -1,14 +1,25 @@
-// @ts-nocheck
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./styles.module.css";
 import { Input } from "../ui/input";
+import { observer } from "mobx-react-lite";
+import { useUserAgent } from "../../app/store/user-agent-provider";
 
-export const RegistrationForm = ({ onLogin }) => {
+export const RegistrationForm = observer(() => {
   const [userData, setUserData] = useState({
     login: "",
     password: "",
     server: "",
   });
+  const [error, setError] = useState("");
+  const userAgentStore = useUserAgent();
+
+  useEffect(() => {
+    if (userAgentStore.errorMessage) {
+      setError(userAgentStore.errorMessage);
+    } else {
+      setError("");
+    }
+  }, [userAgentStore.errorMessage]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -18,7 +29,7 @@ export const RegistrationForm = ({ onLogin }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    onLogin(userData);
+    userAgentStore.registerUserAgent(userData);
   };
 
   return (
@@ -27,11 +38,13 @@ export const RegistrationForm = ({ onLogin }) => {
       <p className={styles["hint"]}>
         Введите данные пользователя вашего SIP провайдера
       </p>
+      <p className={styles["error"]}>{error}</p>
       <form className={styles["form"]} onSubmit={handleSubmit}>
         <div className={styles["form-items-container"]}>
           <div className={styles["form-item"]}>
             <label htmlFor="login">Логин:</label>
             <Input
+              // @ts-ignore
               type="text"
               id="login"
               name="login"
@@ -43,6 +56,7 @@ export const RegistrationForm = ({ onLogin }) => {
           <div className={styles["form-item"]}>
             <label htmlFor="password">Пароль:</label>
             <Input
+              // @ts-ignore
               type="password"
               id="password"
               name="password"
@@ -54,6 +68,7 @@ export const RegistrationForm = ({ onLogin }) => {
           <div className={styles["form-item"]}>
             <label htmlFor="server">Сервер:</label>
             <Input
+              // @ts-ignore
               type="text"
               id="server"
               name="server"
@@ -69,4 +84,4 @@ export const RegistrationForm = ({ onLogin }) => {
       </form>
     </div>
   );
-};
+});
