@@ -1,0 +1,8 @@
+.head {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  font-size: medium;
+  color: #ffffff;
+  background-color: #3dbeff;
+}
