@@ -1,4 +1,3 @@
-// MobXStore.js
 import JsSIP from "jssip";
 import { makeAutoObservable } from "mobx";
 import { REGISTRATION_ERROR } from "./errors";
@@ -8,6 +7,7 @@ export class UserAgentStore {
   userAgent = null;
   errorMessage = "";
   navigate = null;
+  #userLoginInfo = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -17,16 +17,18 @@ export class UserAgentStore {
     this.navigate = navigate;
   }
 
-  setUserAgent(userAgent) {
+  #setUserAgent(userAgent) {
     this.userAgent = userAgent;
   }
 
-  clearError() {
+  #clearError() {
     this.errorMessage = "";
   }
 
-  registerUserAgent({ login, password, server }) {
-    this.clearError();
+  registerUserAgent({ login, password, server, remember }) {
+    this.#clearError();
+
+    this.#userLoginInfo = { login, password, server, remember };
 
     const socket = new JsSIP.WebSocketInterface(`wss:/${server}`);
     const configuration = {
@@ -43,20 +45,20 @@ export class UserAgentStore {
       return;
     }
 
-    userAgent.on("connected", this.handleConnected);
-    userAgent.on("disconnected", this.handleDisconnected);
-    userAgent.on("registered", this.handleRegistered);
-    userAgent.on("registrationFailed", this.handleRegistrationFailed);
+    userAgent.on("connected", this.#handleConnected);
+    userAgent.on("disconnected", this.#handleDisconnected);
+    userAgent.on("registered", this.#handleRegistered);
+    userAgent.on("registrationFailed", this.#handleRegistrationFailed);
 
-    this.setUserAgent(userAgent);
+    this.#setUserAgent(userAgent);
     this.userAgent.start();
   }
 
-  handleConnected = (e) => {
+  #handleConnected = (e) => {
     console.log("Connected to SIP server", e);
   };
 
-  handleDisconnected = (e) => {
+  #handleDisconnected = (e) => {
     if (e.error) {
       this.errorMessage = REGISTRATION_ERROR;
       this.userAgent.stop();
@@ -64,12 +66,19 @@ export class UserAgentStore {
     console.log("Disconnected from SIP server", e);
   };
 
-  handleRegistered = (e) => {
+  #handleRegistered = (e) => {
     console.log("Registered with SIP server", e);
+    if (this.#userLoginInfo?.remember) {
+      // @ts-ignore
+      sessionStorage.setItem(
+        "userLoginInfo",
+        JSON.stringify(this.#userLoginInfo)
+      );
+    }
     this.navigate(HOME_PAGE);
   };
 
-  handleRegistrationFailed = (e) => {
+  #handleRegistrationFailed = (e) => {
     this.errorMessage = REGISTRATION_ERROR;
     console.log("Registration failed with SIP server", e);
   };

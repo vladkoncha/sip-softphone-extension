@@ -5,9 +5,24 @@ import { RegistrationPage } from "../components/pages/registration-page";
 import { useRouter } from "../app/router/router";
 import { HOME_PAGE, REGISTRATION_PAGE } from "../app/router/routes";
 import { HomePage } from "../components/pages/home-page";
+import { useEffect } from "react";
+import { useUserAgent } from "../app/store/user-agent-provider";
 
 export default function Home() {
   const router = useRouter();
+  const userAgentStore = useUserAgent();
+
+  useEffect(() => {
+    // @ts-ignore
+    const userLoginInfoString = sessionStorage.getItem("userLoginInfo");
+    if (userLoginInfoString) {
+      const userLoginInfo = JSON.parse(userLoginInfoString);
+      // Use the retrieved user login info as needed
+      userAgentStore.registerUserAgent(userLoginInfo);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className={styles["page-container"]}>

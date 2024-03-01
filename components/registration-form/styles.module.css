@@ -61,6 +61,14 @@
   flex-grow: 1;
 }
 
+.form-item-remember {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+
+  margin-left: auto;
+}
+
 .button {
   padding: 0.5rem 0.75rem;
 
@@ -83,4 +91,10 @@
 
 .button:active {
   transform: scale(99%);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+
+  background-color: var(--secondary-color);
 }

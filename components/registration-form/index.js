@@ -9,25 +9,34 @@ export const RegistrationForm = observer(() => {
     login: "",
     password: "",
     server: "",
+    remember: false,
   });
   const [error, setError] = useState("");
   const userAgentStore = useUserAgent();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (userAgentStore.errorMessage) {
       setError(userAgentStore.errorMessage);
+      setIsLoading(false);
     } else {
       setError("");
     }
   }, [userAgentStore.errorMessage]);
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
-    setUserData({ ...userData, [name]: value });
+    const { name, value, type } = event.target;
+
+    if (type === "checkbox") {
+      setUserData({ ...userData, [name]: event.target.checked });
+    } else {
+      setUserData({ ...userData, [name]: value });
+    }
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    setIsLoading(true);
 
     userAgentStore.registerUserAgent(userData);
   };
@@ -77,8 +86,18 @@ export const RegistrationForm = observer(() => {
               required
             />
           </div>
+          <div className={styles["form-item-remember"]}>
+            <input
+              type="checkbox"
+              id="remember"
+              name="remember"
+              checked={userData.remember}
+              onChange={handleChange}
+            />
+            <label htmlFor="remember">Запомнить?</label>
+          </div>
         </div>
-        <button className={styles["button"]} type="submit">
+        <button className={styles["button"]} type="submit" disabled={isLoading}>
           Подключиться
         </button>
       </form>
