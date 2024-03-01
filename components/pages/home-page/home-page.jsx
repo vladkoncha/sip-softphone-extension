@@ -1,3 +1,9 @@
+import { PhoneForm } from "../../phone-form";
+
 export const HomePage = () => {
-  return <div>Homepage</div>;
+  return (
+    <div>
+      <PhoneForm />
+    </div>
+  );
 };
