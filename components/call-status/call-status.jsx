@@ -15,7 +15,7 @@ export const CallStatus = observer(() => {
   return (
     <div>
       <h1>{userAgentStore.callStatus.user}</h1>
-      <p>Статус: {userAgentStore.callStatus.connectionStatus}</p>
+      <p>Статус: {userAgentStore.agentStatus}</p>
       <p>{durationText}</p>
     </div>
   );

@@ -1,28 +1,29 @@
 import JsSIP from "jssip";
 import { makeAutoObservable, runInAction } from "mobx";
-import { DEFAULT_ERROR, REGISTRATION_ERROR } from "./errors";
-import { HOME_PAGE } from "../router/routes";
-import { CONFIRMED, DEFAULT, IN_PROGRESS, TERMINATED } from "./call-status";
+import {
+  DEFAULT_ERROR,
+  NO_CONNECTION_ERROR,
+  REGISTRATION_ERROR,
+} from "./errors";
+import { AgentStatus } from "./agent-status";
+import { ConnectionStatus } from "./connection-status";
+import { CALL_ERROR_MESSAGES } from "./call-error-messages";
 
 export class UserAgentStore {
+  agentStatus = AgentStatus.UNREGISTERED;
+  connectionStatus = ConnectionStatus.DISCONNECTED;
   userAgent = null;
   errorMessage = "";
-  navigate = null;
   #userLoginInfo = null;
   callStatus = {
     user: "",
     duration: 0, // in seconds
-    connectionStatus: DEFAULT,
   };
   #callDurationIntervalId = null;
 
   constructor() {
     makeAutoObservable(this);
     this.#keepConnected();
-  }
-
-  setRouter(navigate) {
-    this.navigate = navigate;
   }
 
   #setUserAgent(userAgent) {
@@ -33,8 +34,13 @@ export class UserAgentStore {
     this.errorMessage = "";
   }
 
+  setError(errorMessage) {
+    this.errorMessage = errorMessage;
+    setTimeout(() => runInAction(() => this.clearError()), 5_000);
+  }
+
   #updateDuration() {
-    if (!this.callStatus?.connectionStatus) return;
+    if (!this.agentStatus) return;
     this.callStatus.duration++;
   }
 
@@ -43,11 +49,17 @@ export class UserAgentStore {
       if (this.userAgent?.isConnected()) {
         const eventHandlers = {
           succeeded: (data) => {
-            runInAction(() => this.clearError());
+            runInAction(() => {
+              this.connectionStatus = ConnectionStatus.CONNECTED;
+            });
             console.log("option success", data);
           },
           failed: (data) => {
             console.log("option fail", data);
+            this.userAgent.terminateSessions();
+            runInAction(
+              () => (this.connectionStatus = ConnectionStatus.DISCONNECTED)
+            );
           },
         };
 
@@ -60,8 +72,12 @@ export class UserAgentStore {
           null,
           options
         );
+      } else {
+        runInAction(
+          () => (this.connectionStatus = ConnectionStatus.DISCONNECTED)
+        );
       }
-    }, 30_000);
+    }, 15_000);
   }
 
   registerUserAgent({ login, password, server, remember }) {
@@ -81,7 +97,7 @@ export class UserAgentStore {
       userAgent = new JsSIP.UA(configuration);
     } catch {
       runInAction(() => {
-        this.errorMessage = REGISTRATION_ERROR;
+        this.setError(REGISTRATION_ERROR);
       });
       return;
     }
@@ -93,17 +109,20 @@ export class UserAgentStore {
 
     this.#setUserAgent(userAgent);
 
+    console.log(userAgent);
+
     this.userAgent.start();
   }
 
   #handleConnected = (e) => {
+    runInAction(() => (this.connectionStatus = ConnectionStatus.CONNECTED));
     console.log("Connected to SIP server", e);
   };
 
   #handleDisconnected = (e) => {
     if (e.error) {
       runInAction(() => {
-        this.errorMessage = `Ошибка: ${e?.cause ?? DEFAULT_ERROR}`;
+        this.setError(`Ошибка: ${e?.cause ?? NO_CONNECTION_ERROR}`);
       });
       this.userAgent.stop();
     }
@@ -118,22 +137,22 @@ export class UserAgentStore {
         JSON.stringify(this.#userLoginInfo)
       );
     }
-    this.navigate(HOME_PAGE);
+    runInAction(() => (this.agentStatus = AgentStatus.DEFAULT));
   };
 
   #handleRegistrationFailed = (e) => {
-    runInAction(() => {
-      this.errorMessage = REGISTRATION_ERROR;
-    });
+    runInAction(() => this.setError(REGISTRATION_ERROR));
     console.log("Registration failed with SIP server", e);
     console.log(this.userAgent);
   };
 
   #handleCallFailed = (e) => {
     runInAction(() => {
-      this.errorMessage = `Ошибка вызова: ${e?.cause ?? DEFAULT_ERROR}`;
+      this.setError(
+        CALL_ERROR_MESSAGES?.[e?.message?.status_code] ?? DEFAULT_ERROR
+      );
       setTimeout(
-        () => runInAction(() => (this.callStatus.connectionStatus = DEFAULT)),
+        () => runInAction(() => (this.agentStatus = AgentStatus.DEFAULT)),
         3_000
       );
     });
@@ -142,14 +161,14 @@ export class UserAgentStore {
 
   #handleCallInProgress = (e) => {
     runInAction(() => {
-      this.callStatus.connectionStatus = IN_PROGRESS;
+      this.agentStatus = AgentStatus.CALL_IN_PROGRESS;
     });
     console.log("call in progress", e);
   };
 
   #handleCallConfirmed = (e) => {
     runInAction(() => {
-      this.callStatus.connectionStatus = CONFIRMED;
+      this.agentStatus = AgentStatus.CALL_CONFIRMED;
       this.#callDurationIntervalId = setInterval(
         () => runInAction(() => this.#updateDuration()),
         1_000
@@ -160,10 +179,10 @@ export class UserAgentStore {
 
   #handleCallEnded = (e) => {
     runInAction(() => {
-      this.callStatus.connectionStatus = TERMINATED;
+      this.agentStatus = AgentStatus.CALL_TERMINATED;
 
       setTimeout(
-        () => runInAction(() => (this.callStatus.connectionStatus = DEFAULT)),
+        () => runInAction(() => (this.agentStatus = AgentStatus.DEFAULT)),
         3_000
       );
 
@@ -174,6 +193,7 @@ export class UserAgentStore {
   };
 
   call(calledUserLogin) {
+    this.agentStatus = AgentStatus.CALL_CONNECTING;
     const eventHandlers = {
       progress: this.#handleCallInProgress,
       confirmed: this.#handleCallConfirmed,

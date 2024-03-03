@@ -8,7 +8,6 @@ import { HomePage } from "../components/pages/home-page";
 import { useEffect } from "react";
 import { useUserAgent } from "../app/store/user-agent-provider";
 import { CallPage } from "../components/pages/call-page";
-import { CONFIRMED, IN_PROGRESS } from "../app/store/call-status";
 import { observer } from "mobx-react-lite";
 
 function Home() {
@@ -26,18 +25,6 @@ function Home() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (
-      [IN_PROGRESS, CONFIRMED].includes(
-        userAgentStore.callStatus.connectionStatus
-      )
-    ) {
-      router.navigateTo(CALL_PAGE);
-    } else {
-      router.navigateTo(HOME_PAGE);
-    }
-  }, [router, userAgentStore.callStatus.connectionStatus]);
 
   return (
     <div className={styles["page-container"]}>

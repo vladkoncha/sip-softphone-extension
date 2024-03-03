@@ -12,12 +12,12 @@ export default function App({ Component, pageProps }) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
       <div className="main-container">
-        <Header />
-        <RouterProvider>
-          <UserAgentProvider>
+        <UserAgentProvider>
+          <RouterProvider>
+            <Header />
             <Component {...pageProps} />
-          </UserAgentProvider>
-        </RouterProvider>
+          </RouterProvider>
+        </UserAgentProvider>
       </div>
     </>
   );

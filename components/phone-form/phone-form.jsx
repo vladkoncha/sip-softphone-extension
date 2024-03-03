@@ -6,31 +6,23 @@ import { useUserAgent } from "../../app/store/user-agent-provider";
 
 export const PhoneForm = observer(() => {
   const [calledUser, setCalledUser] = useState("");
-  const [error, setError] = useState("");
-  const [isCalling, setIsCalling] = useState(false);
 
   const userAgentStore = useUserAgent();
-
-  useEffect(() => {
-    if (userAgentStore.errorMessage) {
-      setError(userAgentStore.errorMessage);
-    } else {
-      setError("");
-    }
-    setIsCalling(false);
-  }, [userAgentStore.errorMessage]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     userAgentStore.clearError();
-    setIsCalling(true);
 
     userAgentStore.call(calledUser);
   };
 
   return (
     <div className={styles["container"]}>
-      <p className={styles["error"]}>{error}</p>
+      <p className={styles["error"]}>{userAgentStore.errorMessage}</p>
+      <p className={styles["my-number"]}>
+        Мой номер:{" "}
+        <strong>{userAgentStore.userAgent.get("authorization_user")}</strong>
+      </p>
       <form className={styles["form"]} onSubmit={handleSubmit}>
         <div className={styles["form-items-container"]}>
           <div className={styles["form-item"]}>
@@ -46,7 +38,7 @@ export const PhoneForm = observer(() => {
             />
           </div>
         </div>
-        <button className={styles["button"]} type="submit" disabled={isCalling}>
+        <button className={styles["button"]} type="submit">
           Позвонить
         </button>
       </form>
