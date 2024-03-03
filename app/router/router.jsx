@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { CALL_PAGE, HOME_PAGE, REGISTRATION_PAGE } from "./routes";
+import { CALL_PAGE, HOME_PAGE, INCOMING_PAGE, REGISTRATION_PAGE } from "./routes";
 import { useUserAgent } from "../store/user-agent-provider";
 import { AgentStatus } from "../store/agent-status";
 import { observer } from "mobx-react-lite";
@@ -9,6 +9,7 @@ const RouterContext = createContext(null);
 export const useRouter = () => useContext(RouterContext);
 
 const routeMap = {
+  [AgentStatus.CALL_INCOMING]: INCOMING_PAGE,
   [AgentStatus.CALL_CONNECTING]: CALL_PAGE,
   [AgentStatus.CALL_IN_PROGRESS]: CALL_PAGE,
   [AgentStatus.CALL_CONFIRMED]: CALL_PAGE,

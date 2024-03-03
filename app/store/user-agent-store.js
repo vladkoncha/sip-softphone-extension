@@ -20,6 +20,7 @@ export class UserAgentStore {
     duration: 0, // in seconds
   };
   #callDurationIntervalId = null;
+  #incomingSession = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -80,6 +81,40 @@ export class UserAgentStore {
     }, 15_000);
   }
 
+  #handleIncomingCall = (e) => {
+    if (e?.originator !== "remote" || !e.session) {
+      return;
+    }
+    console.log(e);
+
+    const { session } = e;
+
+    session.on("progress", this.#handleIncomingCallProgress);
+    session.on("confirmed", this.#handleCallConfirmed);
+    session.on("ended", this.#handleCallEnded);
+    session.on("failed", this.#handleCallFailed);
+
+    runInAction(() => {
+      this.#incomingSession = session;
+      this.callStatus.user = session.remote_identity.uri.user;
+    });
+  };
+
+  #handleIncomingCallProgress = (e) => {
+    runInAction(() => {
+      this.agentStatus = AgentStatus.CALL_INCOMING;
+    });
+    console.log("incoming call in progress", e);
+  };
+
+  acceptIncomingCall() {
+    this.#incomingSession.answer();
+  }
+
+  declineIncomingCall() {
+    this.#incomingSession.terminate();
+  }
+
   registerUserAgent({ login, password, server, remember }) {
     this.clearError();
 
@@ -106,6 +141,7 @@ export class UserAgentStore {
     userAgent.on("disconnected", this.#handleDisconnected);
     userAgent.on("registered", this.#handleRegistered);
     userAgent.on("registrationFailed", this.#handleRegistrationFailed);
+    userAgent.on("newRTCSession", this.#handleIncomingCall);
 
     this.#setUserAgent(userAgent);
 
@@ -148,14 +184,15 @@ export class UserAgentStore {
 
   #handleCallFailed = (e) => {
     runInAction(() => {
-      this.setError(
-        CALL_ERROR_MESSAGES?.[e?.message?.status_code] ?? DEFAULT_ERROR
-      );
-      setTimeout(
-        () => runInAction(() => (this.agentStatus = AgentStatus.DEFAULT)),
-        3_000
-      );
+      if (e.originator !== "local") {
+        this.setError(
+          CALL_ERROR_MESSAGES?.[e?.message?.status_code] ?? DEFAULT_ERROR
+        );
+      }
+
+      this.agentStatus = AgentStatus.DEFAULT;
     });
+
     console.log("Call failed", e);
   };
 
@@ -169,6 +206,7 @@ export class UserAgentStore {
   #handleCallConfirmed = (e) => {
     runInAction(() => {
       this.agentStatus = AgentStatus.CALL_CONFIRMED;
+      this.callStatus.duration = 0;
       this.#callDurationIntervalId = setInterval(
         () => runInAction(() => this.#updateDuration()),
         1_000
@@ -189,7 +227,7 @@ export class UserAgentStore {
       clearInterval(this.#callDurationIntervalId);
       this.#callDurationIntervalId = null;
     });
-    console.log("call in progress", e);
+    console.log("call ended", e);
   };
 
   call(calledUserLogin) {

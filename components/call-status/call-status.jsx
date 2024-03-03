@@ -17,6 +17,9 @@ export const CallStatus = observer(() => {
       <h1>{userAgentStore.callStatus.user}</h1>
       <p>Статус: {userAgentStore.agentStatus}</p>
       <p>{durationText}</p>
+      <button onClick={() => userAgentStore.declineIncomingCall()}>
+        Сбросить
+      </button>
     </div>
   );
 });
