@@ -1,0 +1,27 @@
+.icon-button {
+  padding: 0.25rem;
+
+  border: 0;
+  background-color: transparent;
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  transition: all 0.1s ease-in-out;
+}
+
+.icon-button:hover,
+.icon-button:focus-visible {
+  background-color: var(--secondary-color);
+  filter: brightness(110%);
+  transform: scale(105%);
+}
+
+.icon-button:active {
+  transform: scale(95%);
+  filter: brightness(95%);
+}
+
+.icon-button:disabled {
+  cursor: not-allowed;
+}

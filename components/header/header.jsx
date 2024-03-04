@@ -8,6 +8,8 @@ import {
   STATUS_MAP,
 } from "../../app/store/connection-status";
 import clsx from "clsx";
+import { IconButton } from "../ui/icon-button/icon-button";
+import { ExternalLink } from "../ui/icons/external-link";
 
 export const Header = observer(() => {
   const userAgentStore = useUserAgent();
@@ -24,15 +26,17 @@ export const Header = observer(() => {
       >
         {STATUS_MAP[userAgentStore.connectionStatus]}
       </p>
-      <button
-        className={styles.button}
+
+      <IconButton
+        // @ts-ignore
+        title="Открыть в новой вкладке"
+        style={{ width: "2rem", height: "2rem" }}
+        icon={ExternalLink}
         onClick={() =>
           // @ts-ignore
           chrome.tabs.create({ url: chrome.runtime.getURL("index.html") })
         }
-      >
-        Открыть в новой вкладке
-      </button>
+      />
     </div>
   );
 });

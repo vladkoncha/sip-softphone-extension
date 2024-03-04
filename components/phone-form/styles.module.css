@@ -29,6 +29,7 @@
 
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0.5rem;
 }
 
@@ -44,49 +45,17 @@
 
 .form-item {
   display: flex;
+  flex-direction: column;
   gap: 0.25rem;
 
-  align-items: center;
+  /* align-items: center; */
 }
 
 .form-item label {
   display: inline-block;
-  width: 6rem;
-
-  text-align: end;
   font-size: 0.9rem;
 }
 
 .form-item input {
   flex-grow: 1;
-}
-
-.button {
-  padding: 0.5rem 0.75rem;
-
-  border: 0;
-  border-radius: var(--border-radius);
-  background-color: var(--main-color);
-  color: white;
-
-  font-size: 1rem;
-
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.button:hover,
-.button:focus-visible {
-  background-color: var(--accent-color);
-  transform: scale(101%);
-}
-
-.button:active {
-  transform: scale(99%);
-}
-
-.button:disabled {
-  cursor: not-allowed;
-
-  background-color: var(--secondary-color);
 }
