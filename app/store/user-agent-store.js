@@ -94,15 +94,15 @@ export class UserAgentStore {
     });
   }
 
-  #initCleanup() {
+  #initCleanup = () => {
     if (typeof window === "undefined") {
       return;
     }
 
     window.addEventListener("beforeunload", () => {
-      this.#cleanup();
+      runInAction(() => this.#cleanup());
     });
-  }
+  };
 
   #cleanup() {
     if (this.userAgent) {
@@ -245,7 +245,14 @@ export class UserAgentStore {
 
   logout() {
     this.#cleanup();
-    sessionStorage.removeItem("userLoginInfo");
+
+    // @ts-ignore
+    if (typeof chrome === "undefined" || !chrome.storage) {
+      return;
+    }
+
+    // @ts-ignore
+    chrome.storage.session.remove("userLoginInfo");
   }
 
   registerUserAgent({ login, password, server, remember }) {
@@ -301,14 +308,19 @@ export class UserAgentStore {
   };
 
   #handleRegistered = (e) => {
+    runInAction(() => (this.agentStatus = AgentStatus.DEFAULT));
     console.log("Registered with SIP server", e);
     if (this.#userLoginInfo?.remember) {
-      sessionStorage.setItem(
-        "userLoginInfo",
-        JSON.stringify(this.#userLoginInfo)
-      );
+      // @ts-ignore
+      if (typeof chrome === "undefined" || !chrome.storage) {
+        return;
+      }
+
+      // @ts-ignore
+      chrome.storage.session.set({
+        userLoginInfo: this.#userLoginInfo,
+      });
     }
-    runInAction(() => (this.agentStatus = AgentStatus.DEFAULT));
   };
 
   #handleRegistrationFailed = (e) => {

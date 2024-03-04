@@ -27,12 +27,16 @@ function Home() {
 
   useEffect(() => {
     // @ts-ignore
-    const userLoginInfoString = sessionStorage.getItem("userLoginInfo");
-    if (userLoginInfoString) {
-      const userLoginInfo = JSON.parse(userLoginInfoString);
-      // Use the retrieved user login info as needed
-      userAgentStore.registerUserAgent(userLoginInfo);
+    if (typeof chrome === "undefined" || !chrome.storage) {
+      return;
     }
+
+    // @ts-ignore
+    chrome.storage.session.get(["userLoginInfo"], (result) => {
+      if (result.userLoginInfo) {
+        userAgentStore.registerUserAgent(result.userLoginInfo);
+      }
+    });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
