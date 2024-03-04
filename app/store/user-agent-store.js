@@ -100,18 +100,37 @@ export class UserAgentStore {
     }
 
     window.addEventListener("beforeunload", () => {
-      if (this.userAgent) {
-        this.userAgent.stop();
-      }
-
-      if (this.#connectionIntervalId) {
-        clearInterval(this.#connectionIntervalId);
-      }
-
-      if (this.#callDurationIntervalId) {
-        clearInterval(this.#callDurationIntervalId);
-      }
+      this.#cleanup();
     });
+  }
+
+  #cleanup() {
+    if (this.userAgent) {
+      this.userAgent.stop();
+    }
+
+    if (this.#connectionIntervalId) {
+      clearInterval(this.#connectionIntervalId);
+    }
+
+    if (this.#callDurationIntervalId) {
+      clearInterval(this.#callDurationIntervalId);
+    }
+
+    this.agentStatus = AgentStatus.UNREGISTERED;
+    this.userAgent = null;
+    this.connectionStatus = ConnectionStatus.DISCONNECTED;
+    this.errorMessage = "";
+    this.#userLoginInfo = null;
+    this.callStatus = {
+      user: "",
+      duration: 0,
+      type: null,
+    };
+    this.#callDurationIntervalId = null;
+    this.#connectionIntervalId = null;
+    this.#currentSession = null;
+    this.#callHistory = [];
   }
 
   #saveCallToHistory() {
@@ -224,6 +243,11 @@ export class UserAgentStore {
     this.#currentSession.terminate();
   }
 
+  logout() {
+    this.#cleanup();
+    sessionStorage.removeItem("userLoginInfo");
+  }
+
   registerUserAgent({ login, password, server, remember }) {
     this.clearError();
 
@@ -300,6 +324,7 @@ export class UserAgentStore {
           CALL_ERROR_MESSAGES?.[e?.message?.status_code] ?? DEFAULT_ERROR
         );
       }
+      this.#saveCallToHistory();
 
       this.agentStatus = AgentStatus.DEFAULT;
     });
