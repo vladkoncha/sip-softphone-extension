@@ -15,6 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "clsx": "^2.1.0",
     "glob": "^10.2.3",
     "jssip": "^3.10.1",
     "mobx": "^6.12.0",

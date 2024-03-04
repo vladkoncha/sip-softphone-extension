@@ -12,6 +12,18 @@
   color: #ffffff;
 }
 
+.status::after {
+  margin-left: 0.2rem;
+}
+
+.connected::after {
+  content: "🟢";
+}
+
+.disconnected::after {
+  content: "🔴";
+}
+
 .button {
   padding: 0.25rem 0.5rem;
 

@@ -22,12 +22,14 @@ export class UserAgentStore {
     type: null,
   };
   #callDurationIntervalId = null;
+  #connectionIntervalId = null;
   #currentSession = null;
   #callHistory = [];
+  #audioElement = null;
 
   constructor() {
     makeAutoObservable(this);
-    this.#keepConnected();
+    this.#initCleanup();
   }
 
   #setUserAgent(userAgent) {
@@ -52,11 +54,27 @@ export class UserAgentStore {
     return this.#callHistory;
   }
 
+  #setAudioStream() {
+    this.#currentSession.connection.addEventListener("addstream", (event) => {
+      console.log(this.#audioElement);
+      if (!this.#audioElement) {
+        return;
+      }
+
+      this.#audioElement.srcObject = event.stream;
+      this.#audioElement.play();
+    });
+  }
+
+  setAudioElement(audioElement) {
+    this.#audioElement = audioElement;
+  }
+
   #initCallHistory() {
     const userLogin = this.#userLoginInfo.login;
 
     // @ts-ignore
-    if (typeof chrome === undefined || !chrome.storage) {
+    if (typeof chrome === "undefined" || !chrome.storage) {
       return;
     }
 
@@ -76,14 +94,34 @@ export class UserAgentStore {
     });
   }
 
+  #initCleanup() {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.addEventListener("beforeunload", () => {
+      if (this.userAgent) {
+        this.userAgent.stop();
+      }
+
+      if (this.#connectionIntervalId) {
+        clearInterval(this.#connectionIntervalId);
+      }
+
+      if (this.#callDurationIntervalId) {
+        clearInterval(this.#callDurationIntervalId);
+      }
+    });
+  }
+
   #saveCallToHistory() {
     const callDate = new Date();
     callDate.setSeconds(callDate.getSeconds() - this.callStatus.duration);
     const newCall = { ...this.callStatus, date: callDate };
-    this.#callHistory.push(newCall);
+    this.#callHistory.unshift(newCall);
 
     // @ts-ignore
-    if (typeof chrome === undefined || !chrome.storage) {
+    if (typeof chrome === "undefined" || !chrome.storage) {
       return;
     }
 
@@ -95,7 +133,7 @@ export class UserAgentStore {
         ? JSON.parse(result[userLogin])
         : [];
 
-      callHistoryData.push(newCall);
+      callHistoryData.unshift(newCall);
 
       const serializedCallHistory = JSON.stringify(callHistoryData);
 
@@ -107,7 +145,11 @@ export class UserAgentStore {
   }
 
   #keepConnected() {
-    setInterval(() => {
+    if (this.#connectionIntervalId) {
+      clearInterval(this.#connectionIntervalId);
+    }
+
+    this.#connectionIntervalId = setInterval(() => {
       if (this.userAgent?.isConnected()) {
         const eventHandlers = {
           succeeded: (data) => {
@@ -175,6 +217,7 @@ export class UserAgentStore {
 
   acceptIncomingCall() {
     this.#currentSession.answer();
+    this.#setAudioStream();
   }
 
   terminateCall() {
@@ -211,6 +254,7 @@ export class UserAgentStore {
 
     this.#setUserAgent(userAgent);
     this.#initCallHistory();
+    this.#keepConnected();
 
     console.log(userAgent);
 
@@ -320,6 +364,7 @@ export class UserAgentStore {
       `sip:${calledUserLogin}@${this.#userLoginInfo.server}`,
       options
     );
+    this.#setAudioStream();
     console.log("out call session", this.#currentSession);
 
     this.#initCallStatus(calledUserLogin, CallType.OUTGOING);

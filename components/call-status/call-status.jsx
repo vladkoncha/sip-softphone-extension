@@ -1,3 +1,5 @@
+"use client";
+
 import { observer } from "mobx-react-lite";
 import { useUserAgent } from "../../app/store/user-agent-provider";
 import { getFormattedDuration } from "../../utils/getFormattedDuration";
