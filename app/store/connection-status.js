@@ -3,7 +3,7 @@ export const ConnectionStatus = {
   DISCONNECTED: "DISCONNECTED",
 };
 
-export const STATUS_MAP = {
+export const CONNECTION_STATUS_MAP = {
   [ConnectionStatus.CONNECTED]: "Подключен",
   [ConnectionStatus.DISCONNECTED]: "Нет соединения",
 };

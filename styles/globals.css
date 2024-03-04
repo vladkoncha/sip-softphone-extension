@@ -6,6 +6,9 @@
   --background-color: #f8f9fa;
   --background-grey: #eeeeee;
   --error-red: #de0000;
+  --green: #01d316;
+  --yellow: #f1da29;
+  --decline-red: #f81616;
 }
 
 html,

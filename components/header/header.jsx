@@ -5,7 +5,7 @@ import { useUserAgent } from "../../app/store/user-agent-provider";
 import styles from "./styles.module.css";
 import {
   ConnectionStatus,
-  STATUS_MAP,
+  CONNECTION_STATUS_MAP,
 } from "../../app/store/connection-status";
 import clsx from "clsx";
 import { IconButton } from "../ui/icon-button/icon-button";
@@ -24,7 +24,7 @@ export const Header = observer(() => {
             userAgentStore.connectionStatus === ConnectionStatus.DISCONNECTED,
         })}
       >
-        {STATUS_MAP[userAgentStore.connectionStatus]}
+        {CONNECTION_STATUS_MAP[userAgentStore.connectionStatus]}
       </p>
 
       <IconButton

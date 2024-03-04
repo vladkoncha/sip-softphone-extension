@@ -356,7 +356,7 @@ export class UserAgentStore {
 
       setTimeout(
         () => runInAction(() => (this.agentStatus = AgentStatus.DEFAULT)),
-        3_000
+        2_000
       );
 
       clearInterval(this.#callDurationIntervalId);
