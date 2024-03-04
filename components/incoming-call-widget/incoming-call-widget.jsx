@@ -8,7 +8,7 @@ export const IncomingCallWidget = observer(() => {
     <div>
       <h1>Звонок от {userAgentStore.callStatus.user}</h1>
       <button onClick={() => userAgentStore.acceptIncomingCall()}>Ответить</button>
-      <button onClick={() => userAgentStore.declineIncomingCall()}>Сбросить</button>
+      <button onClick={() => userAgentStore.terminateCall()}>Сбросить</button>
     </div>
   );
 });

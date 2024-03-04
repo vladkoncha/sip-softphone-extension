@@ -1,0 +1,21 @@
+.history-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  margin-top: 2rem;
+}
+
+.title {
+  padding: 0.25rem;
+  font-size: 1.25rem;
+}
+
+.cards-container {
+  height: 330px;
+  overflow-y: scroll;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}

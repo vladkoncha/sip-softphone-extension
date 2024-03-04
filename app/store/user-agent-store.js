@@ -8,6 +8,7 @@ import {
 import { AgentStatus } from "./agent-status";
 import { ConnectionStatus } from "./connection-status";
 import { CALL_ERROR_MESSAGES } from "./call-error-messages";
+import { CallType } from "./call-type";
 
 export class UserAgentStore {
   agentStatus = AgentStatus.UNREGISTERED;
@@ -18,9 +19,11 @@ export class UserAgentStore {
   callStatus = {
     user: "",
     duration: 0, // in seconds
+    type: null,
   };
   #callDurationIntervalId = null;
-  #incomingSession = null;
+  #currentSession = null;
+  #callHistory = [];
 
   constructor() {
     makeAutoObservable(this);
@@ -43,6 +46,64 @@ export class UserAgentStore {
   #updateDuration() {
     if (!this.agentStatus) return;
     this.callStatus.duration++;
+  }
+
+  getCallHistory() {
+    return this.#callHistory;
+  }
+
+  #initCallHistory() {
+    const userLogin = this.#userLoginInfo.login;
+
+    // @ts-ignore
+    if (typeof chrome === undefined || !chrome.storage) {
+      return;
+    }
+
+    // @ts-ignore
+    chrome.storage.local.get([userLogin], (result) => {
+      const serializedCallHistory = result[userLogin];
+      if (serializedCallHistory) {
+        const callHistoryData = JSON.parse(serializedCallHistory);
+
+        this.#callHistory = callHistoryData.map((callData) => ({
+          ...callData,
+          date: new Date(callData.date),
+        }));
+      } else {
+        console.log("No call history found for user:", userLogin);
+      }
+    });
+  }
+
+  #saveCallToHistory() {
+    const callDate = new Date();
+    callDate.setSeconds(callDate.getSeconds() - this.callStatus.duration);
+    const newCall = { ...this.callStatus, date: callDate };
+    this.#callHistory.push(newCall);
+
+    // @ts-ignore
+    if (typeof chrome === undefined || !chrome.storage) {
+      return;
+    }
+
+    const userLogin = this.#userLoginInfo.login;
+
+    // @ts-ignore
+    chrome.storage.local.get([userLogin], (result) => {
+      let callHistoryData = result[userLogin]
+        ? JSON.parse(result[userLogin])
+        : [];
+
+      callHistoryData.push(newCall);
+
+      const serializedCallHistory = JSON.stringify(callHistoryData);
+
+      // @ts-ignore
+      chrome.storage.local.set({ [userLogin]: serializedCallHistory }, () => {
+        console.log("Call added to history and saved for user:", userLogin);
+      });
+    });
   }
 
   #keepConnected() {
@@ -87,6 +148,11 @@ export class UserAgentStore {
     }
     console.log(e);
 
+    // Incoming calls during another call in progress are ignored
+    if (this.agentStatus !== AgentStatus.DEFAULT) {
+      return;
+    }
+
     const { session } = e;
 
     session.on("progress", this.#handleIncomingCallProgress);
@@ -95,8 +161,8 @@ export class UserAgentStore {
     session.on("failed", this.#handleCallFailed);
 
     runInAction(() => {
-      this.#incomingSession = session;
-      this.callStatus.user = session.remote_identity.uri.user;
+      this.#currentSession = session;
+      this.#initCallStatus(session.remote_identity.uri.user, CallType.INCOMING);
     });
   };
 
@@ -108,11 +174,11 @@ export class UserAgentStore {
   };
 
   acceptIncomingCall() {
-    this.#incomingSession.answer();
+    this.#currentSession.answer();
   }
 
-  declineIncomingCall() {
-    this.#incomingSession.terminate();
+  terminateCall() {
+    this.#currentSession.terminate();
   }
 
   registerUserAgent({ login, password, server, remember }) {
@@ -144,6 +210,7 @@ export class UserAgentStore {
     userAgent.on("newRTCSession", this.#handleIncomingCall);
 
     this.#setUserAgent(userAgent);
+    this.#initCallHistory();
 
     console.log(userAgent);
 
@@ -206,7 +273,6 @@ export class UserAgentStore {
   #handleCallConfirmed = (e) => {
     runInAction(() => {
       this.agentStatus = AgentStatus.CALL_CONFIRMED;
-      this.callStatus.duration = 0;
       this.#callDurationIntervalId = setInterval(
         () => runInAction(() => this.#updateDuration()),
         1_000
@@ -226,12 +292,18 @@ export class UserAgentStore {
 
       clearInterval(this.#callDurationIntervalId);
       this.#callDurationIntervalId = null;
+      this.#saveCallToHistory();
     });
     console.log("call ended", e);
   };
 
+  #initCallStatus(userLogin, callType) {
+    this.callStatus.duration = 0;
+    this.callStatus.user = userLogin;
+    this.callStatus.type = callType;
+  }
+
   call(calledUserLogin) {
-    this.agentStatus = AgentStatus.CALL_CONNECTING;
     const eventHandlers = {
       progress: this.#handleCallInProgress,
       confirmed: this.#handleCallConfirmed,
@@ -244,14 +316,13 @@ export class UserAgentStore {
       mediaConstraints: { audio: true, video: false },
     };
 
-    const session = this.userAgent.call(
+    this.#currentSession = this.userAgent.call(
       `sip:${calledUserLogin}@${this.#userLoginInfo.server}`,
       options
     );
-    console.log("session", session);
+    console.log("out call session", this.#currentSession);
 
-    runInAction(() => {
-      this.callStatus.user = calledUserLogin;
-    });
+    this.#initCallStatus(calledUserLogin, CallType.OUTGOING);
+    this.agentStatus = AgentStatus.CALL_CONNECTING;
   }
 }
