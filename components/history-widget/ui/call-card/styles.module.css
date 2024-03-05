@@ -1,32 +1,27 @@
 .card-button {
-  width: 100%;
-
   display: flex;
+  width: 100%;
   flex-direction: row;
-  justify-content: space-between;
   align-items: center;
-
+  justify-content: space-between;
   padding: 0.35rem 1rem;
-
   border: 1px solid var(--secondary-color);
-  border-left: 0;
   border-right: 0;
-  background-color: #eeeeee;
+  border-left: 0;
+  background-color: #eee;
   cursor: pointer;
-
   transition: all 0.1s ease-in-out;
 }
 
 .card-button:hover {
-  background-color: #ffffff;
+  background-color: #fff;
 }
 
 .login-duration-container {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-
   align-items: flex-start;
+  gap: 0.25rem;
 }
 
 .user {

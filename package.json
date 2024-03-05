@@ -6,10 +6,13 @@
   "scripts": {
     "build": "npm run prep",
     "prep": "npm run exp && node out.js",
+    "prettify": "npx prettier . --write",
     "exp": "next build && next export",
     "run": "next start",
-    "lint": "next lint",
-    "dev": "next dev"
+    "stylelint": "npx stylelint \"**/*.css\" --fix",
+    "lint": "next lint  --fix",
+    "dev": "next dev",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +29,18 @@
   },
   "devDependencies": {
     "eslint": "8.57.0",
-    "eslint-config-next": "14.1.0"
+    "eslint-config-next": "14.1.0",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "prettier": "3.2.5",
+    "stylelint": "^16.2.1",
+    "stylelint-config-idiomatic-order": "^10.0.0",
+    "stylelint-config-standard": "^36.0.0"
+  },
+  "lint-staged": {
+    "*.css": "npx stylelint --fix '**/*.css'",
+    "*.{js,jsx}": "eslint --cache --fix",
+    "*.{js,jsx,css,md}": "prettier --write"
   }
 }

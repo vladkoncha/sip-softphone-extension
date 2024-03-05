@@ -1,1 +1,1 @@
-export * from "./call-page";
+export * from './call-page';

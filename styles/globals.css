@@ -4,7 +4,7 @@
   --secondary-color: #9dcdf7;
   --accent-color: #e79107;
   --background-color: #f8f9fa;
-  --background-grey: #eeeeee;
+  --background-grey: #eee;
   --error-red: #de0000;
   --green: #01d316;
   --yellow: #f1da29;
@@ -15,37 +15,32 @@ html,
 body {
   padding: 0;
   margin: 0;
-
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 }
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-
-  margin: 0;
   padding: 0;
+  margin: 0;
 }
 
 body {
-  height: 600px;
+  display: flex;
   width: 100%;
   min-width: 400px;
-
-  display: flex;
+  height: 600px;
   flex-direction: column;
   align-items: center;
 }
 
 .main-container {
-  width: 400px;
-  min-height: 600px;
-  height: 100%;
-
-  background-color: var(--background-color);
-
   display: flex;
+  width: 400px;
+  height: 100%;
+  min-height: 600px;
   flex-direction: column;
+  background-color: var(--background-color);
 }

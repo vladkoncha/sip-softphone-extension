@@ -1,12 +1,9 @@
 .icon-button {
   padding: 0.25rem;
-
   border: 0;
-  background-color: transparent;
   border-radius: 50%;
-
+  background-color: transparent;
   cursor: pointer;
-
   transition: all 0.1s ease-in-out;
 }
 
@@ -18,8 +15,8 @@
 }
 
 .icon-button:active {
-  transform: scale(95%);
   filter: brightness(95%);
+  transform: scale(95%);
 }
 
 .icon-button:disabled {

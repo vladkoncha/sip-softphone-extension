@@ -1,9 +1,10 @@
-import Head from "next/head";
-import { Header } from "../components/header";
-import { RouterProvider } from "../app/router/router";
-import { UserAgentProvider } from "../app/store/user-agent-provider";
+import '../styles/globals.css';
 
-import "../styles/globals.css";
+import Head from 'next/head';
+
+import { RouterProvider } from '../app/router/router';
+import { UserAgentProvider } from '../app/store/user-agent-provider';
+import { Header } from '../components/header';
 
 export default function App({ Component, pageProps }) {
   return (

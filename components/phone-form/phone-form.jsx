@@ -1,27 +1,26 @@
-import { useState } from "react";
-import styles from "./styles.module.css";
-import { Input } from "../ui/input";
-import { observer } from "mobx-react-lite";
-import { IconButton } from "../ui/icon-button/icon-button";
-import { Phone } from "../ui/icons/phone";
+import { observer } from 'mobx-react-lite';
+import { useState } from 'react';
 
-// @ts-ignore
+import { IconButton } from '../ui/icon-button/icon-button';
+import { Phone } from '../ui/icons/phone';
+import { Input } from '../ui/input';
+import styles from './styles.module.css';
+
 export const PhoneForm = observer(({ onSubmit }) => {
-  const [calledUser, setCalledUser] = useState("");
+  const [calledUser, setCalledUser] = useState('');
 
   return (
     <form
-      className={styles["form"]}
+      className={styles['form']}
       onSubmit={(e) => {
         e.preventDefault();
         onSubmit(calledUser);
       }}
     >
-      <div className={styles["form-items-container"]}>
-        <div className={styles["form-item"]}>
+      <div className={styles['form-items-container']}>
+        <div className={styles['form-item']}>
           <label htmlFor="phone">Номер или логин вызываемого абонента</label>
           <Input
-            // @ts-ignore
             type="text"
             id="phone"
             name="phone"
@@ -32,9 +31,8 @@ export const PhoneForm = observer(({ onSubmit }) => {
         </div>
       </div>
       <IconButton
-        // @ts-ignore
         title="Позвонить"
-        style={{ width: "3rem", height: "3rem", backgroundColor: "#01d316" }}
+        style={{ width: '3rem', height: '3rem', backgroundColor: '#01d316' }}
         icon={Phone}
         type="submit"
       />

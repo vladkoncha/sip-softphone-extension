@@ -1,8 +1,8 @@
-import { RegistrationForm } from "../../registration-form";
+import { RegistrationForm } from '../../registration-form';
 
 export const RegistrationPage = () => {
   return (
-    <div style={{ padding: "0.5rem" }}>
+    <div style={{ padding: '0.5rem' }}>
       <RegistrationForm />
     </div>
   );

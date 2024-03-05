@@ -1,4 +1,4 @@
-import { IncomingCallWidget } from "../../incoming-call-widget";
+import { IncomingCallWidget } from '../../incoming-call-widget';
 
 export const IncomingPage = () => {
   return (

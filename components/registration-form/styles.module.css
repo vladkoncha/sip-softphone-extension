@@ -11,50 +11,43 @@
 
 .hint {
   margin-bottom: 0.5rem;
-
   font-size: 0.9rem;
 }
 
 .error {
   height: 2rem;
   margin-bottom: 0.5rem;
-
-  text-align: center;
-  font-size: 0.9rem;
   color: var(--error-red);
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .form {
-  width: 100%;
-
   display: flex;
+  width: 100%;
   flex-direction: column;
   gap: 0.5rem;
 }
 
 .form-items-container {
-  width: 100%;
-
-  padding: 0.75rem;
-
   display: flex;
+  width: 100%;
   flex-direction: column;
+  padding: 0.75rem;
   gap: 1rem;
 }
 
 .form-item {
   display: flex;
-  gap: 0.25rem;
-
   align-items: center;
+  gap: 0.25rem;
 }
 
 .form-item label {
   display: inline-block;
   width: 6rem;
-
-  text-align: end;
   font-size: 0.9rem;
+  text-align: end;
 }
 
 .form-item input {
@@ -63,23 +56,19 @@
 
 .form-item-remember {
   display: flex;
-  gap: 0.25rem;
   align-items: center;
-
   margin-left: auto;
+  gap: 0.25rem;
 }
 
 .button {
   padding: 0.5rem 0.75rem;
-
   border: 0;
   border-radius: var(--border-radius);
   background-color: var(--main-color);
   color: white;
-
-  font-size: 1rem;
-
   cursor: pointer;
+  font-size: 1rem;
   transition: all 0.15s ease;
 }
 
@@ -94,7 +83,6 @@
 }
 
 .button:disabled {
-  cursor: not-allowed;
-
   background-color: var(--secondary-color);
+  cursor: not-allowed;
 }

@@ -1,17 +1,18 @@
-import { useEffect, useState } from "react";
-import styles from "./styles.module.css";
-import { Input } from "../ui/input";
-import { observer } from "mobx-react-lite";
-import { useUserAgent } from "../../app/store/user-agent-provider";
+import { observer } from 'mobx-react-lite';
+import { useEffect, useState } from 'react';
+
+import { useUserAgent } from '../../app/store/user-agent-provider';
+import { Input } from '../ui/input';
+import styles from './styles.module.css';
 
 export const RegistrationForm = observer(() => {
   const [userData, setUserData] = useState({
-    login: "",
-    password: "",
-    server: "",
+    login: '',
+    password: '',
+    server: '',
     remember: false,
   });
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const userAgentStore = useUserAgent();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -20,14 +21,14 @@ export const RegistrationForm = observer(() => {
       setError(userAgentStore.errorMessage);
       setIsLoading(false);
     } else {
-      setError("");
+      setError('');
     }
   }, [userAgentStore.errorMessage]);
 
   const handleChange = (event) => {
     const { name, value, type } = event.target;
 
-    if (type === "checkbox") {
+    if (type === 'checkbox') {
       setUserData({ ...userData, [name]: event.target.checked });
     } else {
       setUserData({ ...userData, [name]: value });
@@ -42,18 +43,17 @@ export const RegistrationForm = observer(() => {
   };
 
   return (
-    <div className={styles["container"]}>
-      <h2 className={styles["title"]}>Регистрация пользователя</h2>
-      <p className={styles["hint"]}>
+    <div className={styles['container']}>
+      <h2 className={styles['title']}>Регистрация пользователя</h2>
+      <p className={styles['hint']}>
         Введите данные пользователя вашего SIP провайдера
       </p>
-      <p className={styles["error"]}>{error}</p>
-      <form className={styles["form"]} onSubmit={handleSubmit}>
-        <div className={styles["form-items-container"]}>
-          <div className={styles["form-item"]}>
+      <p className={styles['error']}>{error}</p>
+      <form className={styles['form']} onSubmit={handleSubmit}>
+        <div className={styles['form-items-container']}>
+          <div className={styles['form-item']}>
             <label htmlFor="login">Логин:</label>
             <Input
-              // @ts-ignore
               type="text"
               id="login"
               name="login"
@@ -62,10 +62,9 @@ export const RegistrationForm = observer(() => {
               required
             />
           </div>
-          <div className={styles["form-item"]}>
+          <div className={styles['form-item']}>
             <label htmlFor="password">Пароль:</label>
             <Input
-              // @ts-ignore
               type="password"
               id="password"
               name="password"
@@ -74,10 +73,9 @@ export const RegistrationForm = observer(() => {
               required
             />
           </div>
-          <div className={styles["form-item"]}>
+          <div className={styles['form-item']}>
             <label htmlFor="server">Сервер:</label>
             <Input
-              // @ts-ignore
               type="text"
               id="server"
               name="server"
@@ -86,7 +84,7 @@ export const RegistrationForm = observer(() => {
               required
             />
           </div>
-          <div className={styles["form-item-remember"]}>
+          <div className={styles['form-item-remember']}>
             <input
               type="checkbox"
               id="remember"
@@ -97,7 +95,7 @@ export const RegistrationForm = observer(() => {
             <label htmlFor="remember">Запомнить?</label>
           </div>
         </div>
-        <button className={styles["button"]} type="submit" disabled={isLoading}>
+        <button className={styles['button']} type="submit" disabled={isLoading}>
           Подключиться
         </button>
       </form>

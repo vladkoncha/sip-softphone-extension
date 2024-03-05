@@ -5,21 +5,18 @@
 }
 
 .error {
-  height: 2rem;
-
   display: flex;
+  height: 2rem;
   flex-direction: column;
   justify-content: flex-end;
   margin: 0.5rem 0;
-
-  text-align: center;
-  font-size: 0.9rem;
   color: var(--error-red);
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .my-number {
   align-self: flex-start;
   padding: 0.75rem;
-
   font-size: 0.95rem;
 }

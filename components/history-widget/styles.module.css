@@ -1,11 +1,9 @@
 .history-container {
-  width: 100%;
-
   display: flex;
+  width: 100%;
   flex-direction: column;
-  gap: 0.25rem;
-
   margin-top: 2rem;
+  gap: 0.25rem;
 }
 
 .title {
@@ -14,10 +12,9 @@
 }
 
 .cards-container {
-  height: 330px;
-  overflow-y: scroll;
-
   display: flex;
+  height: 330px;
   flex-direction: column;
   gap: 0.15rem;
+  overflow-y: scroll;
 }

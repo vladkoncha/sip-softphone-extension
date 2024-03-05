@@ -1,1 +1,1 @@
-export * from "./incoming-call-widget";
+export * from './incoming-call-widget';

@@ -1,1 +1,1 @@
-export * from "./history-widget";
+export * from './history-widget';

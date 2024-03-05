@@ -1,15 +1,16 @@
-"use client";
+'use client';
 
-import { observer } from "mobx-react-lite";
-import { useUserAgent } from "../../app/store/user-agent-provider";
-import styles from "./styles.module.css";
+import clsx from 'clsx';
+import { observer } from 'mobx-react-lite';
+
 import {
-  ConnectionStatus,
   CONNECTION_STATUS_MAP,
-} from "../../app/store/connection-status";
-import clsx from "clsx";
-import { IconButton } from "../ui/icon-button/icon-button";
-import { ExternalLink } from "../ui/icons/external-link";
+  ConnectionStatus,
+} from '../../app/store/connection-status';
+import { useUserAgent } from '../../app/store/user-agent-provider';
+import { IconButton } from '../ui/icon-button/icon-button';
+import { ExternalLink } from '../ui/icons/external-link';
+import styles from './styles.module.css';
 
 export const Header = observer(() => {
   const userAgentStore = useUserAgent();
@@ -17,10 +18,10 @@ export const Header = observer(() => {
   return (
     <div className={styles.header}>
       <p
-        className={clsx(styles["status"], {
-          [styles["connected"]]:
+        className={clsx(styles['status'], {
+          [styles['connected']]:
             userAgentStore.connectionStatus === ConnectionStatus.CONNECTED,
-          [styles["disconnected"]]:
+          [styles['disconnected']]:
             userAgentStore.connectionStatus === ConnectionStatus.DISCONNECTED,
         })}
       >
@@ -28,13 +29,11 @@ export const Header = observer(() => {
       </p>
 
       <IconButton
-        // @ts-ignore
         title="Открыть в новой вкладке"
-        style={{ width: "2rem", height: "2rem" }}
+        style={{ width: '2rem', height: '2rem' }}
         icon={ExternalLink}
         onClick={() =>
-          // @ts-ignore
-          chrome.tabs.create({ url: chrome.runtime.getURL("index.html") })
+          chrome.tabs.create({ url: chrome.runtime.getURL('index.html') })
         }
       />
     </div>

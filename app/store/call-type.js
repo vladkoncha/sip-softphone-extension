@@ -1,4 +1,4 @@
 export const CallType = {
-  INCOMING: "INCOMING",
-  OUTGOING: "OUTGOING",
+  INCOMING: 'INCOMING',
+  OUTGOING: 'OUTGOING',
 };

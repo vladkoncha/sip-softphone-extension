@@ -1,8 +1,14 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { CALL_PAGE, HOME_PAGE, INCOMING_PAGE, REGISTRATION_PAGE } from "./routes";
-import { useUserAgent } from "../store/user-agent-provider";
-import { AgentStatus } from "../store/agent-status";
-import { observer } from "mobx-react-lite";
+import { observer } from 'mobx-react-lite';
+import { createContext, useContext, useEffect, useState } from 'react';
+
+import { AgentStatus } from '../store/agent-status';
+import { useUserAgent } from '../store/user-agent-provider';
+import {
+  CALL_PAGE,
+  HOME_PAGE,
+  INCOMING_PAGE,
+  REGISTRATION_PAGE,
+} from './routes';
 
 const RouterContext = createContext(null);
 
@@ -18,7 +24,6 @@ const routeMap = {
   [AgentStatus.UNREGISTERED]: REGISTRATION_PAGE,
 };
 
-// @ts-ignore
 export const RouterProvider = observer(({ children }) => {
   const [currentRoute, setCurrentRoute] = useState(REGISTRATION_PAGE);
   const userAgentStore = useUserAgent();

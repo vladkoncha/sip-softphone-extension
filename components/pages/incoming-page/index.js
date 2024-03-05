@@ -1,1 +1,1 @@
-export * from "./incoming-page";
+export * from './incoming-page';

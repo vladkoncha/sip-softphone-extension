@@ -1,25 +1,20 @@
-import { forwardRef } from "react";
-import styles from "./styles.module.css";
-import clsx from "clsx";
+import { forwardRef } from 'react';
 
-// @ts-ignore
-const IconButton = forwardRef(
-  // @ts-ignore
-  ({ icon: Icon, onClick, ...rest }, ref) => {
-    return (
-      <button
-        type="button"
-        // @ts-ignore
-        className={styles["icon-button"]}
-        ref={ref}
-        onClick={onClick}
-        {...rest}
-      >
-        <Icon />
-      </button>
-    );
-  }
-);
+import styles from './styles.module.css';
 
-IconButton.displayName = "IconButton";
+const IconButton = forwardRef(({ icon: Icon, onClick, ...rest }, ref) => {
+  return (
+    <button
+      type="button"
+      className={styles['icon-button']}
+      ref={ref}
+      onClick={onClick}
+      {...rest}
+    >
+      <Icon />
+    </button>
+  );
+});
+
+IconButton.displayName = 'IconButton';
 export { IconButton };
