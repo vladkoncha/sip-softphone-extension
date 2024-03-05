@@ -13,7 +13,7 @@
 
 .cards-container {
   display: flex;
-  height: 330px;
+  height: 190px;
   flex-direction: column;
   gap: 0.15rem;
   overflow-y: scroll;
