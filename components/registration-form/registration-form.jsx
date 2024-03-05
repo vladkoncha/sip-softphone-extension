@@ -1,3 +1,5 @@
+'use client';
+
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 
@@ -10,7 +12,7 @@ export const RegistrationForm = observer(() => {
     login: '',
     password: '',
     server: '',
-    remember: false,
+    remember: true,
   });
   const [error, setError] = useState('');
   const userAgentStore = useUserAgent();
@@ -54,6 +56,7 @@ export const RegistrationForm = observer(() => {
           <div className={styles['form-item']}>
             <label htmlFor="login">Логин:</label>
             <Input
+              // @ts-ignore
               type="text"
               id="login"
               name="login"
@@ -65,6 +68,7 @@ export const RegistrationForm = observer(() => {
           <div className={styles['form-item']}>
             <label htmlFor="password">Пароль:</label>
             <Input
+              // @ts-ignore
               type="password"
               id="password"
               name="password"
@@ -76,6 +80,7 @@ export const RegistrationForm = observer(() => {
           <div className={styles['form-item']}>
             <label htmlFor="server">Сервер:</label>
             <Input
+              // @ts-ignore
               type="text"
               id="server"
               name="server"

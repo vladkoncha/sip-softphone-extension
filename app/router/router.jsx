@@ -24,6 +24,7 @@ const routeMap = {
   [AgentStatus.UNREGISTERED]: REGISTRATION_PAGE,
 };
 
+// @ts-ignore
 export const RouterProvider = observer(({ children }) => {
   const [currentRoute, setCurrentRoute] = useState(REGISTRATION_PAGE);
   const userAgentStore = useUserAgent();

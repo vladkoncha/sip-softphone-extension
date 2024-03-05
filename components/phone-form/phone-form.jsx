@@ -1,3 +1,5 @@
+'use client';
+
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 
@@ -6,6 +8,7 @@ import { Phone } from '../ui/icons/phone';
 import { Input } from '../ui/input';
 import styles from './styles.module.css';
 
+// @ts-ignore
 export const PhoneForm = observer(({ onSubmit }) => {
   const [calledUser, setCalledUser] = useState('');
 
@@ -21,6 +24,7 @@ export const PhoneForm = observer(({ onSubmit }) => {
         <div className={styles['form-item']}>
           <label htmlFor="phone">Номер или логин вызываемого абонента</label>
           <Input
+            // @ts-ignore
             type="text"
             id="phone"
             name="phone"
@@ -31,6 +35,7 @@ export const PhoneForm = observer(({ onSubmit }) => {
         </div>
       </div>
       <IconButton
+        // @ts-ignore
         title="Позвонить"
         style={{ width: '3rem', height: '3rem', backgroundColor: '#01d316' }}
         icon={Phone}

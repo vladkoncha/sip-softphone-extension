@@ -1,3 +1,5 @@
+'use client';
+
 import { useUserAgent } from '../../../app/store/user-agent-provider';
 import { HistoryWidget } from '../../history-widget';
 import { PhoneForm } from '../../phone-form';
@@ -17,6 +19,7 @@ export const HomePage = () => {
   return (
     <div className={styles['container']}>
       <IconButton
+        // @ts-ignore
         title="Выйти из аккаунта"
         style={{
           width: '2.5rem',
@@ -33,7 +36,10 @@ export const HomePage = () => {
         Мой номер:{' '}
         <strong>{userAgentStore.userAgent?.get('authorization_user')}</strong>
       </p>
-      <PhoneForm onSubmit={handleSubmit} />
+      <PhoneForm
+        // @ts-ignore
+        onSubmit={handleSubmit}
+      />
       <HistoryWidget />
     </div>
   );

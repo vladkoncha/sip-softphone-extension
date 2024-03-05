@@ -2,7 +2,8 @@
   "compilerOptions": {
     "module": "nodenext",
     "jsx": "preserve",
-    "checkJs": false
+    "checkJs": true,
+    "allowJs": true
   },
   "exclude": ["node_modules", "**/node_modules/*"]
 }

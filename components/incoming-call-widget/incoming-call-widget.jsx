@@ -1,8 +1,8 @@
 import { observer } from 'mobx-react-lite';
 
 import { useUserAgent } from '../../app/store/user-agent-provider';
+import { DeclineButton } from '../decline-button';
 import { IconButton } from '../ui/icon-button/icon-button';
-import { Cross } from '../ui/icons/cross';
 import { Phone } from '../ui/icons/phone';
 import styles from './styles.module.css';
 
@@ -14,6 +14,7 @@ export const IncomingCallWidget = observer(() => {
       <h1>{userAgentStore.callStatus.user}</h1>
       <div className={styles['buttons-container']}>
         <IconButton
+          // @ts-ignore
           title="Ответить"
           onClick={() => userAgentStore.acceptIncomingCall()}
           icon={Phone}
@@ -23,16 +24,7 @@ export const IncomingCallWidget = observer(() => {
             backgroundColor: 'var(--green)',
           }}
         />
-        <IconButton
-          title="Сбросить"
-          onClick={() => userAgentStore.terminateCall()}
-          icon={Cross}
-          style={{
-            width: '4rem',
-            height: '4rem',
-            backgroundColor: 'var(--decline-red)',
-          }}
-        />
+        <DeclineButton />
       </div>
     </div>
   );

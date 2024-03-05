@@ -3,13 +3,13 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect, useRef } from 'react';
 
-import { useRouter } from '../app/router/router';
+import { useRouter } from '../app/router';
 import {
   CALL_PAGE,
   HOME_PAGE,
   INCOMING_PAGE,
   REGISTRATION_PAGE,
-} from '../app/router/routes';
+} from '../app/router';
 import { useUserAgent } from '../app/store/user-agent-provider';
 import { CallPage } from '../components/pages/call-page';
 import { HomePage } from '../components/pages/home-page';
@@ -27,10 +27,12 @@ function Home() {
   }, [userAgentStore]);
 
   useEffect(() => {
+    // @ts-ignore
     if (typeof chrome === 'undefined' || !chrome.storage) {
       return;
     }
 
+    // @ts-ignore
     chrome.storage.session.get(['userLoginInfo'], (result) => {
       if (result.userLoginInfo) {
         userAgentStore.registerUserAgent(result.userLoginInfo);

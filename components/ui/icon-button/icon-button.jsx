@@ -2,6 +2,7 @@ import { forwardRef } from 'react';
 
 import styles from './styles.module.css';
 
+// @ts-ignore
 const IconButton = forwardRef(({ icon: Icon, onClick, ...rest }, ref) => {
   return (
     <button

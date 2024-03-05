@@ -29,11 +29,13 @@ export const Header = observer(() => {
       </p>
 
       <IconButton
+        // @ts-ignore
         title="Открыть в новой вкладке"
         style={{ width: '2rem', height: '2rem' }}
         icon={ExternalLink}
         onClick={() =>
-          chrome.tabs.create({ url: chrome.runtime.getURL('index.html') })
+          // @ts-ignore
+          chrome?.tabs?.create({ url: chrome.runtime.getURL('index.html') })
         }
       />
     </div>

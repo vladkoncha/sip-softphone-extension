@@ -7,7 +7,7 @@
     "build": "npm run prep",
     "prep": "npm run exp && node out.js",
     "prettify": "npx prettier . --write",
-    "exp": "next build && next export",
+    "exp": "next build",
     "run": "next start",
     "stylelint": "npx stylelint \"**/*.css\" --fix",
     "lint": "next lint  --fix",

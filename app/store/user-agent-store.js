@@ -6,6 +6,7 @@ import { CALL_ERROR_MESSAGES } from './call-error-messages';
 import { CallType } from './call-type';
 import { ConnectionStatus } from './connection-status';
 import {
+  CANCELLED as CANCELED,
   DEFAULT_ERROR,
   NO_CONNECTION_ERROR,
   REGISTRATION_ERROR,
@@ -16,12 +17,12 @@ export class UserAgentStore {
   connectionStatus = ConnectionStatus.DISCONNECTED;
   userAgent = null;
   errorMessage = '';
-  #userLoginInfo = null;
   callStatus = {
     user: '',
     duration: 0, // in seconds
     type: null,
   };
+  #userLoginInfo = null;
   #callDurationIntervalId = null;
   #connectionIntervalId = null;
   #currentSession = null;
@@ -31,10 +32,6 @@ export class UserAgentStore {
   constructor() {
     makeAutoObservable(this);
     this.#initCleanup();
-  }
-
-  #setUserAgent(userAgent) {
-    this.userAgent = userAgent;
   }
 
   clearError() {
@@ -55,9 +52,58 @@ export class UserAgentStore {
     return this.#callHistory;
   }
 
+  #initCallHistory() {
+    const userLogin = this.#userLoginInfo.login;
+
+    // @ts-ignore
+    if (typeof chrome === 'undefined' || !chrome.storage) {
+      return;
+    }
+
+    // @ts-ignore
+    chrome.storage.local.get([userLogin], (result) => {
+      const serializedCallHistory = result[userLogin];
+      if (serializedCallHistory) {
+        const callHistoryData = JSON.parse(serializedCallHistory);
+
+        this.#callHistory = callHistoryData.map((callData) => ({
+          ...callData,
+          date: new Date(callData.date),
+        }));
+      }
+    });
+  }
+
+  #saveCallToHistory() {
+    const callDate = new Date();
+    callDate.setSeconds(callDate.getSeconds() - this.callStatus.duration);
+    const newCall = { ...this.callStatus, date: callDate };
+    this.#callHistory.unshift(newCall);
+
+    // @ts-ignore
+    if (typeof chrome === 'undefined' || !chrome.storage) {
+      return;
+    }
+
+    const userLogin = this.#userLoginInfo.login;
+
+    // @ts-ignore
+    chrome.storage.local.get([userLogin], (result) => {
+      let callHistoryData = result[userLogin]
+        ? JSON.parse(result[userLogin])
+        : [];
+
+      callHistoryData.unshift(newCall);
+
+      const serializedCallHistory = JSON.stringify(callHistoryData);
+
+      // @ts-ignore
+      chrome.storage.local.set({ [userLogin]: serializedCallHistory });
+    });
+  }
+
   #setAudioStream() {
-    this.#currentSession.connection.addEventListener('addstream', (event) => {
-      console.log(this.#audioElement);
+    this.#currentSession?.connection.addEventListener('addstream', (event) => {
       if (!this.#audioElement) {
         return;
       }
@@ -71,42 +117,18 @@ export class UserAgentStore {
     this.#audioElement = audioElement;
   }
 
-  #initCallHistory() {
-    const userLogin = this.#userLoginInfo.login;
-
-    if (typeof chrome === 'undefined' || !chrome.storage) {
-      return;
-    }
-
-    chrome.storage.local.get([userLogin], (result) => {
-      const serializedCallHistory = result[userLogin];
-      if (serializedCallHistory) {
-        const callHistoryData = JSON.parse(serializedCallHistory);
-
-        this.#callHistory = callHistoryData.map((callData) => ({
-          ...callData,
-          date: new Date(callData.date),
-        }));
-      } else {
-        console.log('No call history found for user:', userLogin);
-      }
-    });
-  }
-
   #initCleanup = () => {
     if (typeof window === 'undefined') {
       return;
     }
 
     window.addEventListener('beforeunload', () => {
-      runInAction(() => this.#cleanup());
+      runInAction(() => this.#resetState());
     });
   };
 
-  #cleanup() {
-    if (this.userAgent) {
-      this.userAgent.stop();
-    }
+  #resetState() {
+    this.userAgent?.stop();
 
     if (this.#connectionIntervalId) {
       clearInterval(this.#connectionIntervalId);
@@ -132,33 +154,6 @@ export class UserAgentStore {
     this.#callHistory = [];
   }
 
-  #saveCallToHistory() {
-    const callDate = new Date();
-    callDate.setSeconds(callDate.getSeconds() - this.callStatus.duration);
-    const newCall = { ...this.callStatus, date: callDate };
-    this.#callHistory.unshift(newCall);
-
-    if (typeof chrome === 'undefined' || !chrome.storage) {
-      return;
-    }
-
-    const userLogin = this.#userLoginInfo.login;
-
-    chrome.storage.local.get([userLogin], (result) => {
-      let callHistoryData = result[userLogin]
-        ? JSON.parse(result[userLogin])
-        : [];
-
-      callHistoryData.unshift(newCall);
-
-      const serializedCallHistory = JSON.stringify(callHistoryData);
-
-      chrome.storage.local.set({ [userLogin]: serializedCallHistory }, () => {
-        console.log('Call added to history and saved for user:', userLogin);
-      });
-    });
-  }
-
   #keepConnected() {
     if (this.#connectionIntervalId) {
       clearInterval(this.#connectionIntervalId);
@@ -167,14 +162,12 @@ export class UserAgentStore {
     this.#connectionIntervalId = setInterval(() => {
       if (this.userAgent?.isConnected()) {
         const eventHandlers = {
-          succeeded: (data) => {
+          succeeded: () => {
             runInAction(() => {
               this.connectionStatus = ConnectionStatus.CONNECTED;
             });
-            console.log('option success', data);
           },
-          failed: (data) => {
-            console.log('option fail', data);
+          failed: () => {
             this.userAgent.terminateSessions();
             runInAction(
               () => (this.connectionStatus = ConnectionStatus.DISCONNECTED)
@@ -203,7 +196,6 @@ export class UserAgentStore {
     if (e?.originator !== 'remote' || !e.session) {
       return;
     }
-    console.log(e);
 
     // Incoming calls during another call in progress are ignored
     if (this.agentStatus !== AgentStatus.DEFAULT) {
@@ -223,29 +215,31 @@ export class UserAgentStore {
     });
   };
 
+  // @ts-ignore
   #handleIncomingCallProgress = (e) => {
     runInAction(() => {
       this.agentStatus = AgentStatus.CALL_INCOMING;
     });
-    console.log('incoming call in progress', e);
   };
 
   acceptIncomingCall() {
-    this.#currentSession.answer();
+    this.#currentSession?.answer();
     this.#setAudioStream();
   }
 
   terminateCall() {
-    this.#currentSession.terminate();
+    this.#currentSession?.terminate();
   }
 
   logout() {
-    this.#cleanup();
+    this.#resetState();
 
+    // @ts-ignore
     if (typeof chrome === 'undefined' || !chrome.storage) {
       return;
     }
 
+    // @ts-ignore
     chrome.storage.session.remove('userLoginInfo');
   }
 
@@ -277,18 +271,16 @@ export class UserAgentStore {
     userAgent.on('registrationFailed', this.#handleRegistrationFailed);
     userAgent.on('newRTCSession', this.#handleIncomingCall);
 
-    this.#setUserAgent(userAgent);
+    this.userAgent = userAgent;
     this.#initCallHistory();
     this.#keepConnected();
-
-    console.log(userAgent);
 
     this.userAgent.start();
   }
 
+  // @ts-ignore
   #handleConnected = (e) => {
     runInAction(() => (this.connectionStatus = ConnectionStatus.CONNECTED));
-    console.log('Connected to SIP server', e);
   };
 
   #handleDisconnected = (e) => {
@@ -298,52 +290,56 @@ export class UserAgentStore {
       });
       this.userAgent.stop();
     }
-    console.log('Disconnected from SIP server', e);
   };
 
+  // @ts-ignore
   #handleRegistered = (e) => {
     runInAction(() => (this.agentStatus = AgentStatus.DEFAULT));
-    console.log('Registered with SIP server', e);
+
     if (this.#userLoginInfo?.remember) {
+      // @ts-ignore
       if (typeof chrome === 'undefined' || !chrome.storage) {
         return;
       }
 
+      // @ts-ignore
       chrome.storage.session.set({
         userLoginInfo: this.#userLoginInfo,
       });
     }
   };
 
+  // @ts-ignore
   #handleRegistrationFailed = (e) => {
     runInAction(() => this.setError(REGISTRATION_ERROR));
-    console.log('Registration failed with SIP server', e);
-    console.log(this.userAgent);
   };
 
   #handleCallFailed = (e) => {
     runInAction(() => {
-      if (e.originator !== 'local') {
+      this.#saveCallToHistory();
+      this.agentStatus = AgentStatus.DEFAULT;
+
+      if (e.originator === 'local') {
+        return;
+      }
+
+      if (e?.message?.method === 'CANCEL') {
+        this.setError(CANCELED);
+      } else {
         this.setError(
           CALL_ERROR_MESSAGES?.[e?.message?.status_code] ?? DEFAULT_ERROR
         );
       }
-      this.#saveCallToHistory();
-
-      this.agentStatus = AgentStatus.DEFAULT;
     });
-
-    console.log('Call failed', e);
   };
 
-  #handleCallInProgress = (e) => {
+  #handleCallInProgress = () => {
     runInAction(() => {
       this.agentStatus = AgentStatus.CALL_IN_PROGRESS;
     });
-    console.log('call in progress', e);
   };
 
-  #handleCallConfirmed = (e) => {
+  #handleCallConfirmed = () => {
     runInAction(() => {
       this.agentStatus = AgentStatus.CALL_CONFIRMED;
       this.#callDurationIntervalId = setInterval(
@@ -351,12 +347,12 @@ export class UserAgentStore {
         1_000
       );
     });
-    console.log('call confirmed', e);
   };
 
-  #handleCallEnded = (e) => {
+  #handleCallEnded = () => {
     runInAction(() => {
       this.agentStatus = AgentStatus.CALL_TERMINATED;
+      this.#currentSession = null;
 
       setTimeout(
         () => runInAction(() => (this.agentStatus = AgentStatus.DEFAULT)),
@@ -367,7 +363,6 @@ export class UserAgentStore {
       this.#callDurationIntervalId = null;
       this.#saveCallToHistory();
     });
-    console.log('call ended', e);
   };
 
   #initCallStatus(userLogin, callType) {
@@ -394,7 +389,6 @@ export class UserAgentStore {
       options
     );
     this.#setAudioStream();
-    console.log('out call session', this.#currentSession);
 
     this.#initCallStatus(calledUserLogin, CallType.OUTGOING);
     this.agentStatus = AgentStatus.CALL_CONNECTING;

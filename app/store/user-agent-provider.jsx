@@ -5,7 +5,7 @@ import { createContext, useContext } from 'react';
 import { UserAgentStore } from './user-agent-store';
 
 export const UserAgentContext = createContext(null);
-export const userAgentStore = new UserAgentStore();
+const userAgentStore = new UserAgentStore();
 
 export const useUserAgent = () => useContext(UserAgentContext);
 
