@@ -6,7 +6,7 @@ import { CALL_ERROR_MESSAGES } from './call-error-messages';
 import { CallType } from './call-type';
 import { ConnectionStatus } from './connection-status';
 import {
-  CANCELLED as CANCELED,
+  CANCELED,
   DEFAULT_ERROR,
   NO_CONNECTION_ERROR,
   REGISTRATION_ERROR,
